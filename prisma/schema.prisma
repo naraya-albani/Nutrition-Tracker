@@ -8,7 +8,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // Pastikan tambahkan ini dan isi DATABASE_URL di file .env kamu
 }
 
 // 1. Model Pengguna (User / Akun)
