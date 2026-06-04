@@ -1,13 +1,101 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../lib/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL") // Pastikan tambahkan ini dan isi DATABASE_URL di file .env kamu
+}
+
+// 1. Model Pengguna (User / Akun)
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  password      String
+  name          String
+  role          Role           @default(USER) // USER atau ADMIN (jika ada petugas gizi)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  profile       UserProfile?   // Relasi 1-to-1 ke profil fisik (untuk kalkulator gizi)
+  nutritionLogs NutritionLog[] // Relasi 1-to-Many ke riwayat makan harian
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+// 2. Profil Fisik User (Digunakan untuk kalkulator gizi: BMR/TDEE)
+model UserProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gender         Gender
+  age            Int
+  weight         Float    // dalam kg
+  height         Float    // dalam cm
+  activityLevel  Activity // Level aktivitas fisik
+  targetCalories Float    // Target kalori harian hasil kalkulator
+  targetProtein  Float    // Target protein harian (gram)
+  targetCarbs    Float    // Target karbohidrat harian (gram)
+  targetFat      Float    // Target lemak harian (gram)
+  updatedAt      DateTime @updatedAt
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum Activity {
+  SEDENTARY      // Jarang olahraga
+  LIGHTLY_ACTIVE // Olahraga ringan 1-3 hari/minggu
+  MODERATELY_ACTIVE // Olahraga sedang 3-5 hari/minggu
+  VERY_ACTIVE    // Olahraga berat 6-7 hari/minggu
+}
+
+// 3. Data Master Makanan & Kandungan Gizinya (Untuk fitur Scan / Cari Makanan)
+model FoodItem {
+  id          String         @id @default(uuid())
+  name        String         // Nama makanan (misal: "Nasi Putih", "Ayam Bakar")
+  servingSize Float          // Ukuran porsi standar (misal: 100)
+  servingUnit String         // Satuan porsi (misal: "gram")
+  calories    Float          // Kalori per porsi
+  protein     Float          // Protein (gram)
+  carbs       Float          // Karbohidrat (gram)
+  fat         Float          // Lemak (gram)
+  imageUrl    String?        // Foto makanan jika ada (berguna untuk fitur scan)
+  createdAt   DateTime       @default(now())
+  logDetails  LogDetail[]
+}
+
+// 4. Catatan Konsumsi Gizi Harian (Nutrition Logs)
+model NutritionLog {
+  id         String      @id @default(uuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mealType   MealType    // Sarapan, Makan Siang, Makan Malam, Cemilan
+  loggedAt   DateTime    @default(now()) // Tanggal dan waktu makan
+  details    LogDetail[] // List makanan apa saja yang dimakan pada sesi ini
+}
+
+enum MealType {
+  BREAKFAST
+  LUNCH
+  DINNER
+  SNACK
+}
+
+// 5. Detail Makanan dalam satu Log (Tabel Pivot Many-to-Many antara Log dan Makanan)
+model LogDetail {
+  id             String       @id @default(uuid())
+  nutritionLogId String
+  nutritionLog   NutritionLog @relation(fields: [nutritionLogId], references: [id], onDelete: Cascade)
+  foodItemId     String
+  foodItem       FoodItem     @relation(fields: [foodItemId], references: [id])
+  quantity       Float        // Jumlah porsi yang dimakan (misal: 1.5 porsi atau 150 gram)
 }
