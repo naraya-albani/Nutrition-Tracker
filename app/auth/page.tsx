@@ -228,30 +228,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {activeTab === "masuk" && (
-            <div className="flex items-center justify-between mt-3">
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  className="h-3.5 w-3.5 text-[#2e7a3f] focus:ring-[#2e7a3f] border-gray-300 rounded cursor-pointer"
-                />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-[13px] font-medium text-gray-600 cursor-pointer"
-                >
-                  Ingat saya
-                </label>
-              </div>
-              <a
-                href="#"
-                className="text-[13px] font-semibold text-[#2e7a3f] hover:text-[#174e2d] transition-colors"
-              >
-                Lupa kata sandi?
-              </a>
-            </div>
-          )}
-
           <div className="pt-3">
             <button
               type="submit"
