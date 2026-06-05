@@ -87,7 +87,7 @@ export default function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
               Statistik
             </a>
             <Link
-              href="/kalkulator"
+              href="/dashboard/kalkulator"
               className="hover:text-[#113c23] transition-colors"
             >
               Kalkulator Gizi
@@ -147,7 +147,7 @@ export default function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 Mulai Gratis Sekarang
               </Link>
               <Link
-                href="/kalkulator"
+                href="/dashboard/kalkulator"
                 className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-[15px] font-bold px-8 py-4 rounded-xl shadow-sm transition-all text-center hover:-translate-y-0.5 active:translate-y-0"
               >
                 Hitung Kebutuhan Gizi ➔
@@ -533,7 +533,7 @@ export default function LandingPage({ isLoggedIn }: { isLoggedIn: boolean }) {
                 Gabung Gratis Sekarang
               </Link>
               <Link
-                href="/kalkulator"
+                href="/dashboard/kalkulator"
                 className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 text-[15px] font-bold px-8 py-4 rounded-xl shadow-sm transition-all text-center"
               >
                 Kalkulasi Nutrisimu

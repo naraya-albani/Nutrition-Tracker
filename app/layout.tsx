@@ -1,8 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "My Backend",
-  description: "Backend Next.js",
+  title: "Nutrition Tracker",
+  description:
+    "Aplikasi untuk memindai makanan dan melacak nutrisi harian Anda dengan mudah.",
 };
 
 export default function RootLayout({ children }) {

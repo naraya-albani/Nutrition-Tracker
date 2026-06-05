@@ -3,10 +3,13 @@
 import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
 import { logout } from "../auth/action";
+import { createClient } from "../../lib/supabase/client";
+import { User } from "@supabase/supabase-js";
 
 export default function Home() {
+  const supabase = createClient();
+  const [user, setUser] = useState<User | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [profile, setProfile] = useState({ name: "Arini" });
   const [targets, setTargets] = useState({
     calories: 2000,
     protein: 92,
@@ -15,12 +18,26 @@ export default function Home() {
   });
 
   useEffect(() => {
-    const savedProfile = localStorage.getItem("nutrisi_profile");
+    const getUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+    };
+
+    getUser();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     const savedTargets = localStorage.getItem("nutrisi_targets");
-    if (savedProfile) {
-      const parsed = JSON.parse(savedProfile);
-      setProfile({ name: parsed.name.split(" ")[0] });
-    }
     if (savedTargets) {
       setTargets(JSON.parse(savedTargets));
     }
@@ -53,17 +70,17 @@ export default function Home() {
             <span className="text-xl">📱</span> Scan Makanan
           </Link>
           <Link
-            href="/kalkulator"
+            href="/dashboard/kalkulator"
             className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#174e2d] hover:text-white transition-colors mb-2 font-medium"
           >
             <span className="text-xl">📊</span> Kalkulator Gizi
           </Link>
-          <Link
+          {/* <Link
             href="/akun"
             className="flex items-center gap-3 p-3 rounded-xl hover:bg-[#174e2d] hover:text-white transition-colors mb-2 font-medium"
           >
             <span className="text-xl">👤</span> Akun saya
-          </Link>
+          </Link> */}
         </div>
       </nav>
 
@@ -73,20 +90,26 @@ export default function Home() {
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900 mb-1.5 tracking-tight">
-              Selamat pagi, {profile.name}
+              Selamat pagi, {user?.user_metadata?.full_name.split(" ")[0]}
             </h1>
             <p className="text-gray-500 font-medium text-[15px]">
-              Selasa, 19 Mei 2026 &middot; Target kalori:{" "}
-              {targets.calories.toLocaleString("id-ID")} kkal/hari
+              {new Intl.DateTimeFormat("id-ID", {
+                weekday: "long",
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              }).format(new Date())}{" "}
+              &middot; Target kalori: {targets.calories.toLocaleString("id-ID")}{" "}
+              kkal/hari
             </p>
           </div>
           <div className="flex gap-3">
-            <Link
+            {/* <Link
               href="/akun"
               className="bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-sm flex items-center gap-2 active:scale-95"
             >
               👤 Akun saya
-            </Link>
+            </Link> */}
             <button
               onClick={() => startTransition(() => logout())}
               disabled={isPending}
