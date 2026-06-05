@@ -3,9 +3,6 @@
 import React, { useState, useRef } from 'react';
 import Link from 'next/link';
 
-import * as tf from "@tensorflow/tfjs";
-import { useEffect } from "react";
-
 type FoodData = {
   name: string;
   emoji: string;
@@ -94,14 +91,6 @@ const FOOD_DATABASE: Record<string, FoodData> = {
   }
 };
 
-const FOOD_CLASSES = [
-  "nasipadang",
-  "salad",
-  "gadogado",
-  "sate",
-  "nasigoreng",
-];
-
 export default function ScanMakananPage() {
   const [activeTab, setActiveTab] = useState('Kamera');
   const [isScanning, setIsScanning] = useState(false);
@@ -114,27 +103,7 @@ export default function ScanMakananPage() {
   const [fileName, setFileName] = useState<string>('foto_makanan.jpg');
   const [detectedFood, setDetectedFood] = useState<FoodData>(FOOD_DATABASE.nasipadang);
 
-  const [model, setModel] = useState<any>(null);
-
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-  const loadModel = async () => {
-    try {
-      const loadedModel = await tf.loadGraphModel(
-        "/models/food/model.json"
-      );
-
-      setModel(loadedModel);
-
-      console.log("✅ Model berhasil dimuat");
-    } catch (err) {
-      console.error("❌ Gagal load model", err);
-    }
-  };
-
-  loadModel();
-}, []);
 
   // Helper function to analyze food based on file name
   const analyzeFood = (filename: string): FoodData => {
@@ -168,33 +137,7 @@ export default function ScanMakananPage() {
     }, 2000);
   };
 
-const predictFood = async (file: File) => {
-  if (!model) {
-    console.log("Model belum siap");
-    return null;
-  }
-
-  const img = document.createElement("img");
-  img.src = URL.createObjectURL(file);
-
-  await new Promise((resolve) => {
-    img.onload = resolve;
-  });
-
-  const tensor = tf.browser
-    .fromPixels(img)
-    .resizeNearestNeighbor([224, 224])
-    .toFloat()
-    .expandDims(0);
-
-  const prediction = model.predict(tensor) as tf.Tensor;
-
-  const result = await prediction.data();
-
-  return Array.from(result);
-};
-
-  const processFile = async (file: File) => {
+  const processFile = (file: File) => {
     if (!file || !file.type.startsWith('image/')) {
       alert('Mohon unggah file gambar yang valid.');
       return;
@@ -204,31 +147,9 @@ const predictFood = async (file: File) => {
     setPreviewUrl(url);
     setFileName(file.name);
 
-    let analyzed = analyzeFood(file.name);
-
-try {
-  const prediction = await predictFood(file);
-
-  if (prediction) {
-    const maxIndex = prediction.indexOf(
-      Math.max(...prediction)
-    );
-
-    const foodKey =
-      FOOD_CLASSES[maxIndex] || "nasipadang";
-
-    analyzed =
-      FOOD_DATABASE[
-        foodKey as keyof typeof FOOD_DATABASE
-      ];
-  }
-} catch (error) {
-  console.error(error);
-}
-
-setDetectedFood(analyzed);
-setPortion(analyzed.portionSize);
-
+    const analyzed = analyzeFood(file.name);
+    setDetectedFood(analyzed);
+    setPortion(analyzed.portionSize);
 
     setIsScanning(true);
     setTimeout(() => {
