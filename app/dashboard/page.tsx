@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import Link from "next/link";
+import { logout } from "../auth/action";
 
 export default function Home() {
+  const [isPending, startTransition] = useTransition();
   const [profile, setProfile] = useState({ name: "Arini" });
   const [targets, setTargets] = useState({
     calories: 2000,
@@ -45,7 +47,7 @@ export default function Home() {
             <span className="text-xl">🏠</span> Beranda
           </Link>
           <Link
-            href="/scan"
+            href="/dashboard/scan"
             className="w-full text-left flex items-center gap-3 p-3 rounded-xl hover:bg-[#174e2d] hover:text-white transition-colors mb-2 font-medium"
           >
             <span className="text-xl">📱</span> Scan Makanan
@@ -85,18 +87,19 @@ export default function Home() {
             >
               👤 Akun saya
             </Link>
-            <Link
-              href="/login"
-              className="bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-sm flex items-center gap-2 active:scale-95"
+            <button
+              onClick={() => startTransition(() => logout())}
+              disabled={isPending}
+              className="bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 px-5 py-2.5 rounded-xl font-semibold transition-all shadow-sm flex items-center gap-2 active:scale-95 disabled:opacity-50"
             >
-              Keluar
-            </Link>
+              {isPending ? "Keluar..." : "Keluar"}
+            </button>
           </div>
         </header>
 
         {/* Summary Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
-          <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <h3 className="text-gray-500 text-[14px] font-semibold mb-3">
               Kalori hari ini
             </h3>
@@ -107,7 +110,7 @@ export default function Home() {
               dari {targets.calories} kkal target
             </div>
           </div>
-          <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <h3 className="text-gray-500 text-[14px] font-semibold mb-3">
               Protein
             </h3>
@@ -118,7 +121,7 @@ export default function Home() {
               dari {targets.protein} g target
             </div>
           </div>
-          <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <h3 className="text-gray-500 text-[14px] font-semibold mb-3">
               Lemak
             </h3>
@@ -129,7 +132,7 @@ export default function Home() {
               dari {targets.fat} g target
             </div>
           </div>
-          <div className="bg-white p-6 rounded-[24px] shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+          <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
             <h3 className="text-gray-500 text-[14px] font-semibold mb-3">
               Karbohidrat
             </h3>
@@ -145,7 +148,7 @@ export default function Home() {
         {/* Bottom Sections */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Food Log Table */}
-          <section className="lg:col-span-2 bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-gray-100">
+          <section className="lg:col-span-2 bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-gray-100">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold text-gray-900">
                 Log makanan hari ini
@@ -153,7 +156,7 @@ export default function Home() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[500px]">
+              <table className="w-full text-left border-collapse min-w-125">
                 <thead>
                   <tr>
                     <th className="text-[12px] text-gray-400 font-bold uppercase tracking-wider pb-4 border-b border-gray-100 w-[35%]">
@@ -297,7 +300,7 @@ export default function Home() {
           </section>
 
           {/* Macro Distribution */}
-          <section className="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border border-gray-100 h-fit">
+          <section className="bg-white rounded-4xl p-6 sm:p-8 shadow-sm border border-gray-100 h-fit">
             <h2 className="text-xl font-bold text-gray-900 mb-8">
               Distribusi makro
             </h2>

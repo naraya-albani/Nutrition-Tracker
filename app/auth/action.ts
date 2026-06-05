@@ -14,8 +14,8 @@ export async function login(formData: FormData) {
 
   if (error) return { error: error.message };
 
-  revalidatePath("/", "layout");
-  redirect("/");
+  revalidatePath("/dashboard", "layout");
+  redirect("/dashboard");
 }
 
 export async function register(formData: FormData) {
@@ -33,12 +33,12 @@ export async function register(formData: FormData) {
 
   if (error) return { error: error.message };
 
-  revalidatePath("/", "layout");
+  revalidatePath("/auth", "layout");
 }
 
 export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
-  redirect("/auth");
+  redirect("/");
 }
